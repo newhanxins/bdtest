@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>北斗终端</title>
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dzmap.umd.css" />
+  <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" src="js/qwebchannel.js"></script>
+  <script type="text/javascript" src="js/dzmap.umd.js"></script>
+  <script src="js/utils/communication.js"></script>
+  <script src="js/components/data-card.js"></script>
+  <script src="js/components/keyboard.js"></script>
+  <script src="js/notification.js"></script>
+  <script src="js/pages/handheld.js"></script>
+  <script src="js/pages/backtransmission.js"></script>
+  <script src="js/pages/map.js"></script>
+  <script src="js/pages/settings.js"></script>
+  <script src="js/main.js"></script>
+</head>
+<body>
+  <!-- 手持数据页面 -->
+  <div id="handheld-page" class="page active">
+    <div class="header">
+      <div class="connection-section clearfix">
+        <div class="status-icon" id="connect-status-icon">
+          <!-- 连接状态图标 -->
+        </div>
+        <div class="ip-input-group">
+          <span class="ip-label">IP地址:</span>
+          <input type="text" id="ip-input" placeholder="请输入IP" value="--.--.--.--" />
+        </div>
+        <button id="connect-btn">连接设备</button>
+      </div>
+      <div class="filter-boxs">
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" id="show-route" checked />
+            <span class="check-icon"></span>
+            <span class="check-text">轨迹</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="show-df" checked />
+            <span class="check-icon"></span>
+            <span class="check-text">测向线</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="show-spectrum" checked />
+            <span class="check-icon"></span>
+            <span class="check-text">频谱参数</span>
+          </label>
+        </div>
+        <div class="device-box">
+          <span class="check-text">设备编号:</span>
+          <span id="device-number">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-summary clearfix">
+      总数据：<span id="total-data-count">0</span>
+      &nbsp;&nbsp;轨迹：<span id="route-data-count">0</span>
+      &nbsp;&nbsp;测向线：<span id="df-data-count">0</span>
+      &nbsp;&nbsp;频谱参数：<span id="spectrum-data-count">0</span>
+      <div id="clear-handheld" class="clear-btn"></div>
+    </div>
+
+    <div class="data-list scroll-container" id="handheld-data-list">
+      <!-- 手持数据将动态添加到这里 -->
+    </div>
+  </div>
+
+  <!-- 回传数据页面 -->
+  <div id="backtransmission-page" class="page">
+    <div class="header">
+      <div class="checkbox-group">
+        <label class="checkbox-item">
+          <input type="checkbox" id="show-bd-route" checked />
+          <span class="check-icon"></span>
+          <span class="check-text">轨迹</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="show-bd-df" checked />
+          <span class="check-icon"></span>
+          <span class="check-text">测向线</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="show-bd-spectrum" checked />
+          <span class="check-icon"></span>
+          <span class="check-text">频谱参数</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="data-summary clearfix">
+      总数据：<span id="bd-total-data-count">0</span>
+      &nbsp;&nbsp;轨迹：<span id="bd-route-data-count">0</span>
+      &nbsp;&nbsp;测向线：<span id="bd-df-data-count">0</span>
+      &nbsp;&nbsp;频谱参数：<span id="bd-spectrum-data-count">0</span>
+      <div id="clear-backtransmission" class="clear-btn"></div>
+    </div>
+
+    <div class="data-list scroll-container" id="backtransmission-data-list">
+      <!-- 北斗数据将动态添加到这里 -->
+    </div>
+  </div>
+  <!-- 地图 -->
+  <div id="map-page" class="page">
+    <div class="map-header header">
+      <div class="map-switch" id="map-switch">
+        <div class="map-freq" id="map-freq"></div>
+        <div class="map-freq-text">MHz</div>
+      </div>
+    </div>
+    <div class="map-container" id="map">
+
+    </div>
+  </div>
+  <!-- 设置页面 -->
+  <div id="settings-page" class="page">
+    <div class="settings-header">
+      <div class="input-group">
+        <span class="label-text">接收端北斗号：</span>
+        <input type="text" class="input-boxs" id="bd-client-id" placeholder="请输入北斗号" />
+      </div>
+      <div class="input-group">
+        <span class="label-text">数据发送间隔：<span class="label-tip">(最小30s)</span></span>
+        <input type="text" class="input-boxs" id="data-interval" placeholder="--s" />
+      </div>
+    </div>
+    <div class="switch-group">
+      <div class="switch-item">
+        <span class="label-text">频差：</span>
+       
+        <label class="switch-content">
+          <input type="checkbox" class="switch-box" id="freq-diff-switch" />
+
+          <span class="switch-icon"></span>
+          
+        </label>
+      </div>
+      <div class="switch-item">
+        <span class="label-text">测量带宽：</span>
+        <label class="switch-content">
+          <input type="checkbox" class="switch-box" id="measure-bw-switch" />
+
+          <span class="switch-icon"></span>
+          
+        </label>
+      </div>
+      <div class="switch-item" style="display: none;">
+        <span class="label-text">RBW：</span>
+        <label class="switch-content">
+          
+          <input type="checkbox" class="switch-box" id="rbw-switch" />
+          <span class="switch-icon"></span>
+          
+        </label>
+      </div>
+      <div class="switch-item">
+        <span class="label-text">FM频偏：</span>
+        <label class="switch-content">
+          <input type="checkbox" class="switch-box" id="fm-diff-switch" />
+          <span class="switch-icon"></span>
+          
+        </label>
+      </div>
+      <div class="switch-item">
+        <span class="label-text">占用：</span>
+        <label class="switch-content">
+          <input type="checkbox" class="switch-box" id="occupy-switch" />
+          <span class="switch-icon"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="footer">
+    <div class="footer-item active" data-page="handheld">
+      <div class="footer-icon handle-icon"></div>
+      <span class="footer-text">手持数据</span>
+    </div>
+    <div class="footer-item" data-page="backtransmission">
+      <div class="footer-icon back-icon"></div>
+      <span class="footer-text">回传数据</span>
+    </div>
+    <div class="footer-item" data-page="map">
+      <div class="footer-icon map-icon"></div>
+      <span class="footer-text">地图</span>
+    </div>
+    <div class="footer-item" data-page="settings">
+      <div class="footer-icon settings-icon"></div>
+      <span class="footer-text">设置</span>
+    </div>
+  </div>
+
+  <!-- 自定义键盘 -->
+  <div id="custom-keyboard" class="keyboard-container" style="display: none;">
+    <div class="keyboard-boxs">
+        <div class="keyboard-header">
+          <!-- <div id="keyboard-input">输入IP地址</div> -->
+          <input type="text" id="keyboard-input" placeholder="请输入" />
+          <!-- <div class="keyboard-cursor show"></div> -->
+        </div>
+        <div class="keyboard-body clearfix">
+          <div class="number-grid">
+            <div class="number-btn">1</div>
+            <div class="number-btn">2</div>
+            <div class="number-btn">3</div>
+            <div class="number-btn">4</div>
+            <div class="number-btn">5</div>
+            <div class="number-btn">6</div>
+            <div class="number-btn">7</div>
+            <div class="number-btn">8</div>
+            <div class="number-btn">9</div>
+            <div class="number-btn zero-btn">0</div>
+            <div class="number-btn dot-btn flex2">.</div>
+          </div>
+          <div class="action-buttons">
+            <div class="action-btn delect-btn" id="backspace-btn">
+              <div class="delect-icon"></div>
+            </div>
+            <div class="action-btn cancel-btn" id="close-btn">取消</div>
+            <div class="action-btn confirm-btn flex2" id="confirm-btn">确认</div>
+          </div>
+        </div>
+    </div>
+  </div>
+  <!-- 频率列表弹窗 -->
+  <div id="freq-list-popup" class="popup-container" style="display: none;">
+    <div class="popup-boxs">
+      <div class="popup-header">
+        <div class="popup-back" id="freq-list-back"></div>
+        <div class="popup-title">频率列表</div>
+        <div class="popup-close" id="freq-list-close"></div>
+        <!-- <div class="popup-clear" id="freq-list-clear"></div> -->
+      </div>
+      <div class="popup-body">
+        <div class="freq-list-container">
+          <!-- 频率列表 -->
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
