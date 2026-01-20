@@ -55,12 +55,13 @@ function onloadMap() {
             "map_type":"baidu",
             "map_url":"./",
             "map_zoom":5,
-            "map_online":true,
+            "map_online":false,
             "map_offline_street":"",//离线街道瓦片地址
             "map_offline_satellite":"",//离线卫星瓦片地址
             "line_mode":{
-                "line_size_style":"normal",
-                "line_color_mode":false
+                "line_color_mode":false,
+                "line_size_min_strength": 20, // 大小参考系最小强度值
+                "line_size_max_strength": 90,
             }
           }
           console.log("初始化地图参数",options)
@@ -277,7 +278,7 @@ function filterMapDataByFreq() {
     if(map){
         map.clearAll()
     }
-    console.log('过滤地图数据，频率:', currentFreq === 'all' ? '全部频率' : formatFrequency(currentFreq));
+    //console.log('过滤地图数据，频率:', currentFreq === 'all' ? '全部频率' : formatFrequency(currentFreq));
     var currentFreqNum=currentFreq;
     // 示例：调用地图相关的函数来更新显示
     // updateMapDisplay(freq);
@@ -314,7 +315,7 @@ function filterMapDataByFreq() {
 }
 
 function drawData(type,pageType,data){
-    console.log("地图绘制数据",type,pageType,data)
+    // console.log("地图绘制数据",type,pageType,data)
     dataid=dataid+1;
     var longitude=data.lng/10000000;
     var latitude=data.lat/10000000;
@@ -363,7 +364,7 @@ function drawData(type,pageType,data){
                     ],
                     "line_angle": data.angle,
                     "line_offset_angle": 0,//偏移角度有为射线，无为0
-                    "line_length": 80,
+                    "line_length": 30,
                     "line_arrow_length":20,//箭头长度
                     "line_arrow_angle":30,//箭头角度
                     "line_width": 2,

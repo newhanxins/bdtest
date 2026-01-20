@@ -32,6 +32,7 @@ function initMain() {
     // 初始化地图页面
     window.initMapPage();
     console.log('主程序初始化完成');
+    onSetStatus()
 }
 
 /**
@@ -81,10 +82,8 @@ function switchToPage(page) {
     currentPage = page;
     calculaAreaHeight();
     if(page==="map"){
-        console.log('初始化地图页面55555555555555555555555')
         // map.updateSize();
         if(map===null){
-            console.log('初始化地图页面')
             onloadMap()
         }
         

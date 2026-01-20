@@ -65,20 +65,20 @@ function bindDataIntervalEvents() {
         // 输入完成时发送设置消息
         bdClientIdInput.onchange = function(evt) {
             console.log('输入完成',this.value,evt);
-            var interval = this.value.trim();
-            if (interval&&interval>30) {
+            var interval = parseInt(this.value);
+            if (interval) {
                 window.setDataSendInterval(interval);
             }
         };
         
         // 失去焦点时也发送设置消息
-        bdClientIdInput.onblur = function(evt) {
-            console.log('输入完成onblur',this.value,evt);
-            var interval = this.value.trim();
-            if (interval&&interval>30) {
-                window.setDataSendInterval(interval);
-            }
-        };
+        // bdClientIdInput.onblur = function(evt) {
+        //     console.log('输入完成onblur',this.value,evt);
+        //     var interval = parseInt(this.value);
+        //     if (interval&&interval>30) {
+        //         window.setDataSendInterval(interval);
+        //     }
+        // };
     }
 }
 

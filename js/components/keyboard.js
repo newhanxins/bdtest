@@ -73,30 +73,30 @@ function initKeyboard() {
         };
     }
     // 绑定时间输入框点击事件
-    var numInput = document.getElementById('data-interval');
-    if (numInput) {
-        // 禁止系统键盘弹出
-        numInput.setAttribute('readonly', 'readonly');
-        numInput.onclick = function() {
-            showKeyboard('num', this);
-        };
+    // var numInput = document.getElementById('data-interval');
+    // if (numInput) {
+    //     // 禁止系统键盘弹出
+    //     numInput.setAttribute('readonly', 'readonly');
+    //     numInput.onclick = function() {
+    //         showKeyboard('num', this);
+    //     };
         
-        // 防止键盘事件
-        numInput.onkeydown = function(e) {
-            e.preventDefault();
-            return false;
-        };
+    //     // 防止键盘事件
+    //     numInput.onkeydown = function(e) {
+    //         e.preventDefault();
+    //         return false;
+    //     };
         
-        numInput.onkeypress = function(e) {
-            e.preventDefault();
-            return false;
-        };
+    //     numInput.onkeypress = function(e) {
+    //         e.preventDefault();
+    //         return false;
+    //     };
         
-        numInput.oninput = function(e) {
-            e.preventDefault();
-            return false;
-        };
-    }
+    //     numInput.oninput = function(e) {
+    //         e.preventDefault();
+    //         return false;
+    //     };
+    // }
     // 绑定键盘容器点击事件
     var keyboardInput = document.getElementById('keyboard-input');
     if (keyboardInput) {

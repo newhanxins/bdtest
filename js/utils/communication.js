@@ -263,16 +263,16 @@ function onClearDataList(clearDZList, clearBDList) {
 }
 
 function onSetStatus(data) {
-    // data={
-    //     data_type: 201,
-    //     set_bd_client_id:"123456789",
-    //     set_data_send_interval:30000,
-    //     freq_diff:false,
-    //     measure_bw:true,
-    //     rbw:true,
-    //     fm_diff:false,
-    //     occupy:false,
-    // }
+    data={
+        data_type: 201,
+        set_bd_client_id:"123456789",
+        set_data_send_interval:60000,
+        freq_diff:false,
+        measure_bw:true,
+        rbw:true,
+        fm_diff:false,
+        occupy:false,
+    }
     console.log('收到状态更新:', data);
     window.updateSettingsDisplay(data.set_bd_client_id, data.set_data_send_interval, data.freq_diff, data.measure_bw, data.rbw, data.fm_diff, data.occupy);
 }
