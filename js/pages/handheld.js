@@ -3,7 +3,7 @@
  * 处理手持数据页面的交互逻辑
  * 包括连接管理、数据显示控制等功能
  */
-
+var handheldAddList=[];//手持数据添加列表
 /**
  * 初始化手持数据页面
  */
@@ -18,7 +18,7 @@ function initHandheldPage() {
     // 绑定数据清除按钮事件
     var clearBtn = document.getElementById('clear-handheld');
     if (clearBtn) {
-        clearBtn.onclick = handleClearBtnClick;
+        clearBtn.onclick = handheldClearConfirm;
     }
     // 绑定复选框事件
     bindHandCheckboxEvents();
@@ -28,7 +28,11 @@ function initHandheldPage() {
     
     // 初始化设备号显示
     updateDeviceNumber(window.deviceNumber || '');
-    
+    // 绑定数据发送按钮
+    var sendBtn = document.getElementById('send-btn');
+    if (sendBtn) {
+        sendBtn.onclick = handleSendBtnClick;
+    }
     console.log('手持数据页面初始化完成');
 }
 
@@ -63,9 +67,19 @@ function handleConnectBtnClick() {
         window.requestConnectDevice(true, ip);
     }
 }
+function handheldClearConfirm(){
+
+    showConfirm({"title":"提示", "content":"是否清除数据！"},function(){
+        handleClearBtnClick()
+    },function(){
+        console.log('取消清除')
+    })
+    
+}
 function handleClearBtnClick() {
     window.onClearDataList(true, false)
 }
+
 /**
  * 验证IP地址格式
  * @param {string} ip - IP地址字符串
@@ -169,6 +183,124 @@ function updateDeviceNumber(deviceNumber) {
     
     console.log('设备号更新为: ' + deviceNumber);
 }
+
+// 点击发送按钮
+function handleSendBtnClick(){
+    var nowTimes=new Date().getTime()
+    console.log('点击发送按钮',nowTimes - nextSendTime)
+    if(handheldAddList.length == 0){
+        showWarn('请先添加数据',3000)
+        return
+    }else if(handheldAddList.length > 3){ 
+        showWarn('数据发送失败！请勿添加超过3条数据',3000)
+    }else if(nowTimes<nextSendTime){
+        showWarn('发送数据时间请间隔30s,请稍后再试！',3000)
+    }else{
+        showConfirm({"title":"提示", "content":"请确定数据是否发送！"},function(){
+            sendHandheldData(handheldAddList)
+            showSuccess('数据已发送！',3000)
+
+            handheldAddList=[]
+            upDataSendNum()
+            //模拟发送接收消息
+            // setTimeout(function(){
+            //     handheldAddList.forEach(function(item,index){
+            //         var data={
+            //             data_type:15,
+            //             data_id:item.data_id,
+            //             data_send_status:true
+            //         }
+            //         window.onUpdateDataSendStatus(data)
+            //     })
+                
+            // },2000)
+            
+        },function(){
+            console.log('取消清除')
+        })
+    }
+}
+// 手持数据添加数据列表
+function addSendDataList(pageType, dataType, datas) {
+    console.log('addSendDataList', pageType, dataType, datas);
+    
+    var data=deepClone(datas)
+    var data_id=datas.data_id
+    delete data.data_id
+    if(pageType=='handheld'){
+        if(dataType=='route'){
+            newData = {
+                data_type: 100,
+                data_id: data_id,
+                route_data: data
+            }
+        }else if(dataType=='df'){
+            newData = {
+                data_type: 101,
+                data_id: data_id,
+                df_data: data
+            }
+        }else if(dataType=='spectru'){
+            newData = {
+                data_type: 102,
+                data_id: data_id,
+                trace_param: data
+            }
+        }
+        handheldAddList.push(newData)
+        upDataSendNum()
+    } 
+}
+function deleteSendDataList(pageType, dataType, data) {
+    console.log('deleteSendDataList', pageType, dataType, data);
+    // 删除数据列表
+    handheldAddList = handheldAddList.filter(function(item) {
+        return item.data_id !== data.data_id;
+    })
+    upDataSendNum()
+}
+// 发送方式状态更新 手持发送按钮更新
+function updateHandleSendDisplay(){
+    // 手持数据增加状态图标
+    console.log('updateHandleSendDisplayupdateHandleSendDisplay')
+    var isManual=false;
+    if(settingData.data_send_type==1){
+        isManual=true;
+    }
+    if(isManual){
+        //手动模式
+        document.getElementById('send-btn').style.display = 'block'
+        var dataBox = document.getElementById('handheld-data-list');
+        var dataCard = dataBox.querySelectorAll('.data-card');
+        if (dataBox && dataCard) {
+            for (var i = 0; i < dataCard.length; i++) {
+                var data = dataCard[i];
+                //检查是否有发送图标
+                var statusIcon = data.querySelector('.send-status-icon').classList.contains('sending');
+                
+                if (!statusIcon) {
+                    var addIcon = data.querySelector('.add-icon');
+                    if (addIcon) {
+                        addIcon.classList.add('show')
+                    }
+                }
+            }
+        }
+    }else{
+        //自动模式
+        document.getElementById('send-btn').style.display = 'none'
+
+    }
+}
+
+
+//更新发送数量
+function upDataSendNum(){
+    document.getElementById('send-num').textContent = handheldAddList.length
+}
+
+
+
 
 /**
  * 更新数据统计显示

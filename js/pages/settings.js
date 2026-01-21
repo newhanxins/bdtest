@@ -18,7 +18,11 @@ function initSettingsPage() {
     
     // 绑定开关设置事件
     bindSwitchEvents();
-    
+
+    // 绑定发送方式
+    bindSendMethodEvents();
+    // 绑定数据天数
+    bindDataDaysEvents();
     console.log('设置页面初始化完成');
 }
 
@@ -46,6 +50,21 @@ function bindBDClientIdEvents() {
     }
 }
 
+/**
+ * 绑定发送方式
+ */
+function bindSendMethodEvents() {
+    var sendMethodSelect = document.getElementById('send-method-switch');
+    if (sendMethodSelect) {
+        sendMethodSelect.onchange = function() {
+            var method = this.value;
+            if (method) {
+                window.setSendMethod(method);
+
+            }
+        };
+    }
+}
 
 /**
  * 绑定数据发送间隔选择事件
@@ -79,6 +98,21 @@ function bindDataIntervalEvents() {
         //         window.setDataSendInterval(interval);
         //     }
         // };
+    }
+}
+
+/**
+ * 绑定数据天数选择事件
+ */
+function bindDataDaysEvents() {
+    var dataDaysSelect = document.getElementById('data-days');
+    if (dataDaysSelect) {
+        dataDaysSelect.onchange = function() {
+            var days = parseInt(this.value);
+            if (days) {
+                window.setDataSaveTime(days);
+            }
+        }
     }
 }
 
@@ -125,6 +159,19 @@ function bindSwitchEvents() {
             window.setOccupySwitch(this.checked);
         };
     }
+    // 测量开关
+    var measureSwitch = document.getElementById('measure-switch');
+    if (measureSwitch) {
+        measureSwitch.onchange = function() {
+            window.setMeasureSwitch(this.checked);
+            if(this.checked){
+                document.getElementById('switch-open-box').style.display = "block";
+            }else{
+                document.getElementById('switch-open-box').style.display = "none";
+
+            }
+        };
+    }
 }
 
 
@@ -140,7 +187,7 @@ function bindSwitchEvents() {
  * @param {boolean} fmDiffEnabled - FM频偏开关状态
  * @param {boolean} occupyEnabled - 占用度开关状态
  */
-function updateSettingsDisplay(bdClientId, dataInterval, freqDiffEnabled, measureBWEnabled, rbwEnabled, fmDiffEnabled, occupyEnabled) {
+function updateSettingsDisplay(bdClientId, dataInterval,sendMethod, freqDiffEnabled, measureBWEnabled, rbwEnabled, fmDiffEnabled, occupyEnabled,measureEnabled,dataDays) {
     // 更新北斗终端号
     var bdClientIdInput = document.getElementById('bd-client-id');
     if (bdClientIdInput) {
@@ -166,7 +213,16 @@ function updateSettingsDisplay(bdClientId, dataInterval, freqDiffEnabled, measur
         //     dataIntervalSelect.selectedIndex = 0;
         // }
     }
-    
+    // 更新发送方式
+    var sendMethodSelect = document.getElementById('send-method-switch');
+    if (sendMethodSelect&&sendMethod) {
+        sendMethodSelect.value = sendMethod || 0;
+    }
+    // 更新数据保留天数
+    var dataDaysSelect = document.getElementById('data-days');
+    if (dataDaysSelect&&dataDays) {
+        dataDaysSelect.value = dataDays || 3;
+    }
     // 更新频差开关
     var freqDiffSwitch = document.getElementById('freq-diff-switch');
     if (freqDiffSwitch) {
@@ -196,7 +252,18 @@ function updateSettingsDisplay(bdClientId, dataInterval, freqDiffEnabled, measur
     if (occupySwitch) {
         occupySwitch.checked = occupyEnabled;
     }
-    
+    // 更新测量开关
+    var measureSwitch = document.getElementById('measure-switch');
+    if (measureSwitch) {
+        measureSwitch.checked = measureEnabled;
+        if(measureEnabled){
+            document.getElementById('switch-open-box').style.display = "block";
+        }else{
+            document.getElementById('switch-open-box').style.display = "none";
+
+        }
+    }
+    // 
     console.log('设置页面显示已更新');
 }
 

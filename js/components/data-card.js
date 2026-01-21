@@ -18,6 +18,7 @@ var dataList={
         spectrum:[]
     }
 }
+
 /**
  * 创建数据卡片元素
  * @param {string} pageType - 页面类型 ('handheld' 或 'backtransmission')
@@ -29,6 +30,10 @@ function createDataCard(pageType, dataType, data) {
     // 创建卡片容器
     var card = document.createElement('div');
     card.className = 'data-card';
+    var cardid=pageType+dataType+data.data_id;
+    card.id=cardid;
+    // 增加元素属性 id
+    card.setAttribute('data-id', data.data_id);
     // 根据数据类型添加特定类名
     if (dataType === 'df') {
         card.classList.add('df-data');
@@ -41,7 +46,12 @@ function createDataCard(pageType, dataType, data) {
     // 创建标题
     var title = document.createElement('div');
     title.className = 'data-title';
-    
+    // 创建标题span元素
+    var titleSpan = document.createElement('span');
+   
+    titleSpan.className = 'title-text';
+
+
     // 根据页面类型和数据类型确定标题文本
     var titleText = '';
     if (pageType === 'handheld') {
@@ -63,9 +73,62 @@ function createDataCard(pageType, dataType, data) {
             titleText = '频谱参数';
         }
     }
-    title.appendChild(document.createTextNode(titleText));
+    titleSpan.textContent = titleText;
+    // 创建序号span元素
+    var numberSpan = document.createElement('span');
+    numberSpan.textContent = data.data_id;
+    numberSpan.className = 'number-text';
+
+    // 将span元素添加到title div中
+    title.appendChild(titleSpan);
+    title.appendChild(numberSpan);
     card.appendChild(title);
     
+    if (pageType === 'handheld') {
+        // 手持数据增加状态图标
+        var isShowAdd=false;
+        if(settingData.data_send_type==1){
+            isShowAdd=true;
+        }
+        console.log('isShowAddisShowAddisShowAddisShowAdd', settingData.data_send_type);
+        var statusIcon = document.createElement('div');
+        statusIcon.className = 'send-status-icon';
+        if (data.send_status) {
+            statusIcon.className = 'send-status-icon sending';
+        }else {
+            statusIcon.className = 'send-status-icon';
+        }
+        card.appendChild(statusIcon);
+        // 手持数据增加添加图标和删除图标
+        var addIcon = document.createElement('div');
+        var deleteIcon = document.createElement('div');
+        deleteIcon.className = 'delete-icon';
+        addIcon.className = 'add-icon';
+        if(isShowAdd&&!data.send_status){
+            addIcon.className = 'add-icon show';
+        }
+        addIcon.onclick = function () {
+            // 添加数据
+            if(handheldAddList.length>=3){
+                showInfo('数据不能超过3条数据',3000)
+                return false;
+            }else{
+                addSendDataList(pageType, dataType, data);
+                addIcon.className = 'add-icon hide';
+                deleteIcon.className = 'delete-icon show';
+            }
+            
+        };
+        
+        deleteIcon.onclick = function () {
+            // 删除数据
+            deleteSendDataList(pageType, dataType, data);
+            addIcon.className = 'add-icon show';
+            deleteIcon.className = 'delete-icon hide';
+        };
+        card.appendChild(addIcon);
+        card.appendChild(deleteIcon);
+    }
     // 根据数据类型创建不同的数据行
     var dataRows = [];
     
@@ -438,6 +501,45 @@ function toggleDataCardsVisibility(pageType, dataType) {
         }
     }
 }
+// 更新接收到的发送数据状态
+function onUpdateDataSendStatus(data){
+        // var data={
+        //     data_type:15,
+        //     data_id:data.data_id,
+        //     data_send_status:false
+        // }
+    console.log('接收发送消息',data);
+    if(!data.data_send_status){
+        showError('发送失败',1000);
+        return false;
+    }
+    var dataId=data.data_id;
+    var dataBox=document.getElementById('handheld-data-list');
+    var dataCard = dataBox.querySelector('.data-card[data-id="'+dataId+'"]');
+
+    // 检查元素是否存在
+    if (dataCard) {
+        // 获取 class 类名为 send-status-icon 的子元素
+        var sendStatusIcon = dataCard.querySelector('.send-status-icon');
+
+        // 检查 send-status-icon 是否存在
+        if (sendStatusIcon) {
+            // 添加 'sending' 类名
+            sendStatusIcon.classList.add('sending');
+        }
+        // 添加删除按钮隐藏
+        var addButton=dataCard.querySelector('.add-icon');
+        if (addButton) {
+            addButton.style.display = 'none';
+        }
+        var deleteButton = dataCard.querySelector('.delete-icon');
+        if (deleteButton) {
+            deleteButton.style.display = 'none';
+        }
+
+    }
+}
+
 
 // 页面加载完成后初始化数据卡片组件
 if (document.readyState === 'loading') {

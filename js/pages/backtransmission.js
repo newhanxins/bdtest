@@ -13,7 +13,7 @@ function initBacktransmissionPage() {
     // 绑定数据清除按钮事件
     var clearBtn = document.getElementById('clear-backtransmission');
     if (clearBtn) {
-        clearBtn.onclick = backtransmissionClearBtnClick;
+        clearBtn.onclick = backtransmissionClearConfirm;
     }
     console.log('回传数据页面初始化完成');
 }
@@ -45,6 +45,13 @@ function bindCheckboxEvents() {
             window.toggleDataCardsVisibility('backtransmission', 'spectrum');
         };
     }
+}
+function backtransmissionClearConfirm(){
+    showConfirm({"title":"提示", "content":"是否清除数据！"},function(){
+        backtransmissionClearBtnClick()
+    },function(){
+        console.log('取消清除')
+    })
 }
 function backtransmissionClearBtnClick(){
     window.onClearDataList(false,true);

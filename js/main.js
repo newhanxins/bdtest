@@ -31,8 +31,8 @@ function initMain() {
     window.initKeyboard();
     // 初始化地图页面
     window.initMapPage();
+    
     console.log('主程序初始化完成');
-    onSetStatus()
 }
 
 /**
@@ -88,6 +88,9 @@ function switchToPage(page) {
         }
         
         filterMapDataByFreq()
+    }else if(page==="handheld"){
+        //手持页面检查是否显示发射按钮
+        updateHandleSendDisplay()
     }
     console.log('切换到页面: ' + page);
 }

@@ -53,35 +53,7 @@ body {
 .page.active {
   display: block;
 }
-.flex{
-  display: flex;
-}
-.flex-center{
-  justify-content: center;
-}
-.flex-column{
-  flex-direction: column;
-}
-.flex-row{
-  flex-direction: row;
-}
-.flex-wrap{
-  flex-wrap: wrap;
-}
-.flex-between{
-  justify-content: space-between;
-}
-.flex-align-justify{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.flex2{
-  flex:2;
-}
-.flex3{
-  flex:3;
-}
+
 /* 头部样式 */
 .header {
   width: 100%;
@@ -245,6 +217,9 @@ body {
   font-size: 28px;
 }
 
+
+
+
 /* 数据列表样式 */
 .data-list {
   width: 100%;
@@ -260,6 +235,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-left: 6px solid #007AFF; /* 默认轨迹颜色 */
+  position: relative;
 }
 
 .data-card.df-data { /* 测向数据 */
@@ -269,6 +245,41 @@ body {
 .data-card.spectrum-data { /* 频谱参数 */
   border-left-color: #FFD700;
 }
+/* 手持数据项图标 */
+.data-card .send-status-icon{
+  width:112px;
+  height: 36px;
+  position: absolute;
+  right: 10px;
+  top: -4px;
+  /* display: none; */
+}
+.data-card .send-status-icon.sending{
+  display: block;
+  background: url("../assets/icons/sending.png") no-repeat center center;
+}
+.data-card .add-icon,.data-card .delete-icon{
+  width: 40px;
+  height: 40px;
+  background-size: 100% 100%;
+  display: none;
+  position:absolute;
+  right: 30px;
+  top:12px;
+  cursor: pointer;
+}
+.data-card .add-icon.show{
+  display: block;
+}
+.data-card .delete-icon.show{
+  display: block;
+}
+.data-card .add-icon {
+  background-image: url("../assets/icons/add_icon.png");
+}
+.data-card .delete-icon {
+  background-image: url("../assets/icons/delect_icon.png");
+}
 
 .data-title {
   font-size: 30px;
@@ -276,6 +287,10 @@ body {
   margin-bottom: 10px;
   color: #699bff; /* 默认轨迹颜色 */
   transform: skewX(-5deg);
+}
+.data-title .number-text{
+  margin-left: 20px;
+  font-size: 24px;
 }
 
 .data-card.df-data .data-title { /* 测向数据标题色 */
@@ -286,20 +301,22 @@ body {
   color: #ffcc00;
 }
 
+
+
 .data-content{
   width:100%;
-  font-size: 20px;
+  font-size: 24px;
   color: #333;
 }
 .data-content .data-item{
   display: inline-block;
   margin-bottom: 10px;
-  width: 50%;
+  min-width: 50%;
 }
 /* 超出门限状态样式 */
 .threshold-exceeded {
   color: #FF3B30; /* 红色表示超过门限 */
-  font-weight: bold;
+  /* font-weight: bold; */
   font-size: 18px;
 }
 
@@ -307,9 +324,31 @@ body {
   color: #4CD964; /* 绿色表示未超过门限 */
   font-size: 18px;
 }
-
-
-
+#handheld-page{
+  position: relative;
+}
+.send-btn{
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+  width: 150px;
+  height: 150px;
+  background: url("../assets/icons/add_send.png") no-repeat center center;
+  cursor: pointer;
+  display: none;
+}
+.send-btn .send-num{
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 15px;
+  background-color: #F5616D;
+  color: #fff;
+  float: right;
+  margin-right: 20px;
+}
 /* 设置页面样式 */
 .settings-header {
   padding:0 16px;
@@ -318,6 +357,13 @@ body {
 .switch-group{
   padding:0px 16px;
   background-color: #fff;
+}
+#switch-open-box{
+  display: none;
+}
+#settings-page{
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 #settings-page .input-group,#settings-page .switch-item{
   height: 88px;
@@ -658,7 +704,7 @@ body {
 
 .popup-boxs {
     width: 680px;
-    height: 60vh;
+    max-height: 60vh;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -667,7 +713,6 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    
     display: flex;
     flex-direction: column;
 }
@@ -698,15 +743,36 @@ body {
     background-image: url("../assets/icons/close_icon.png");
 }
 
-
-
 .popup-body {
     padding: 20px;
     overflow-y: auto;
     max-height: 66vh;
     flex: 1;
 }
-
+.confirm-content{
+  
+}
+.confirm-buttons{
+  display: flex;
+  justify-content: space-between;
+  margin:20px 0;
+}
+.confirm-buttons .confirm-btn{
+  width:200px;
+  margin:0 auto;
+  margin-top:20px;
+  border-radius: 10px;
+  font-size: 26px;
+  border-radius: 10px;
+  background-color: #004bcd;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  cursor: pointer;
+}
+.confirm-buttons #confirm-cancel{
+  background-color: #505152;
+}
 .freq-list-container {
     display: flex;
     flex-wrap: wrap;
@@ -735,6 +801,9 @@ body {
     background-color: #dae7ff;
     border:2px solid #2773f8;
 }
+
+
+/* 地图样式 */
 .map-header{
   height: 80px;
   padding-top: 10px;

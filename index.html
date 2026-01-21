@@ -70,6 +70,10 @@
     <div class="data-list scroll-container" id="handheld-data-list">
       <!-- 手持数据将动态添加到这里 -->
     </div>
+    <!-- 发送按钮 -->
+     <div class="send-btn" id="send-btn">
+        <div class="send-num" id="send-num">0</div>
+     </div>
   </div>
 
   <!-- 回传数据页面 -->
@@ -133,25 +137,48 @@
           <option value="60">60s</option>
         </select>
       </div>
+      <div class="input-group">
+        <span class="label-text">发送方式：<span class="label-tip">(手动最多3条)</span></span>
+        <select id="send-method-switch" class="input-boxs">
+          <option value="0">自动</option>
+          <option value="1">手动</option>
+        </select>
+      </div>
+      <!-- <div class="input-group">
+        <span class="label-text">数据保留天数：</span>
+        <select id="data-days" class="input-boxs">
+          <option value="1">1</option>
+          <option value="3">3</option>
+          <option value="7">7</option>
+          <option value="15">15</option>
+          <option value="30">30</option>
+        </select>
+      </div> -->
     </div>
     <div class="switch-group">
       <div class="switch-item">
-        <span class="label-text">频差：</span>
-       
+        <span class="label-text">测量开关：</span>
         <label class="switch-content">
-          <input type="checkbox" class="switch-box" id="freq-diff-switch" />
-
+          <input type="checkbox" class="switch-box" id="measure-switch" />
           <span class="switch-icon"></span>
-          
         </label>
       </div>
+    </div>
+    
+    <div class="switch-group" id="switch-open-box">
+      <div class="switch-item">
+        <span class="label-text">频差：</span>
+        <label class="switch-content">
+          <input type="checkbox" class="switch-box" id="freq-diff-switch" />
+          <span class="switch-icon"></span> 
+        </label>
+      </div>
+      
       <div class="switch-item">
         <span class="label-text">测量带宽：</span>
         <label class="switch-content">
           <input type="checkbox" class="switch-box" id="measure-bw-switch" />
-
           <span class="switch-icon"></span>
-          
         </label>
       </div>
       <div class="switch-item" style="display: none;">
@@ -245,6 +272,23 @@
       <div class="popup-body">
         <div class="freq-list-container">
           <!-- 频率列表 -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 确认弹窗 -->
+  <div id="confirm-popup" class="popup-container" style="display: none;">
+    <div class="popup-boxs width-400">
+      <div class="popup-header">
+        <div class="popup-back" id="confirm-back"></div>
+        <div class="popup-title" id="confirm-title">提示</div>
+        <div class="popup-close" id="confirm-close"></div>
+      </div>
+      <div class="popup-body">
+        <div class="confirm-content text-center" id="confirm-content"></div>
+        <div class="confirm-buttons">
+          <div class="confirm-btn" id="confirm-cancel">取消</div>
+          <div class="confirm-btn" id="confirm-ok">确定</div>
         </div>
       </div>
     </div>

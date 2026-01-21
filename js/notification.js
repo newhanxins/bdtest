@@ -328,3 +328,53 @@ window.showSuccess = showSuccess;
 window.clearAllNotifications = clearAllNotifications;
 
 console.log('提示信息组件已加载');
+
+
+
+/**
+ * 确认提示框
+ * @param {string} message - 提示信息内容
+ * @param {Function} onConfirm - 确认回调函数
+ * @param {Function} onCancel - 取消回调函数
+ */
+function showConfirm(message, onConfirm, onCancel) {
+    console.log('确认提示框已加载');
+    // 创建确认提示框元素
+    var confirmBox = document.getElementById('confirm-popup');
+    if (!confirmBox) {
+        confirmBox = document.createElement('div');
+        confirmBox.id = 'confirm-popup';
+        confirmBox.className = 'confirm-popup';
+        confirmBox.style.display = 'none';
+        document.body.appendChild(confirmBox);
+    }else {
+        confirmBox.style.display = 'block';
+    }
+
+    // 设置提示信息内容
+    var confirTitle=document.getElementById('confirm-title');
+    confirTitle.textContent = message.title?message.title:'提示';
+    var confirmMessage = document.getElementById('confirm-content');
+    confirmMessage.textContent = message.content;
+    var confirmClose = document.getElementById('confirm-close');
+    confirmClose.onclick = function() {
+        confirmBox.style.display = 'none';
+    }
+    // 取消按钮点击事件
+    var confirmCancel = document.getElementById('confirm-cancel');
+    confirmCancel.onclick = function() {
+        confirmBox.style.display = 'none';
+        if (onCancel) {
+            onCancel();
+        }
+    }
+    // 确认按钮点击事件
+    var confirmOk = document.getElementById('confirm-ok');
+    confirmOk.onclick = function() {
+        confirmBox.style.display = 'none';
+        if (onConfirm) {
+            onConfirm();
+        }
+    }
+}
+// 调用案例

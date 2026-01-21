@@ -7,7 +7,9 @@
 // 全局变量，存储设备连接状态和设备号
 var connectionStatus = false;
 var deviceNumber = '';
-
+// 设置状态数据
+var settingData = {}
+var nextSendTime= new Date().getTime()
 /**
  * 发送消息到C++后端
  * @param {Object} message - 要发送的消息对象
@@ -54,29 +56,35 @@ function handleReceivedMessage(messageData) {
         case 11: // 手持设备号更新
             onDeviceNumberUpdate(message.dz_number);
             break;
-            
+        case 15:// 更新数据是否发送
+            onUpdateDataSendStatus(message);
+            break;
+        case 16: // 更新下次发送时间
+            // onNextSendTime(message.data_next_send_time);
+            nextSendTime=message.data_next_send_time
+            break;
         case 100: // 添加手持轨迹数据
-            onAddHandheldRouteData(message.route_data);
+            onAddHandheldRouteData(message);
             break;
             
         case 101: // 添加手持测向数据
-            onAddHandheldDFData(message.df_data);
+            onAddHandheldDFData(message);
             break;
             
         case 102: // 添加手持频谱参数数据
-            onAddHandheldSpectrumData(message.trace_param);
+            onAddHandheldSpectrumData(message);
             break;
             
         case 103: // 添加北斗轨迹数据
-            onAddBDRouteData(message.route_data);
+            onAddBDRouteData(message);
             break;
             
         case 104: // 添加北斗测向数据
-            onAddBDDFData(message.df_data);
+            onAddBDDFData(message);
             break;
             
         case 105: // 添加北斗频谱参数数据
-            onAddBDSpectrumData(message.trace_param);
+            onAddBDSpectrumData(message);
             break;
             
         case 200: // 清空数据列表
@@ -147,13 +155,16 @@ function onDeviceNumberUpdate(deviceNum) {
     console.log('设备号更新:', deviceNum);
 }
 
+
+
 /**
  * 添加手持轨迹数据回调
- * @param {Object} routeData - 轨迹数据
+ * @param {Object} data - 轨迹数据
  */
-function onAddHandheldRouteData(routeData) {
+function onAddHandheldRouteData(data) {
     // console.log('收到手持轨迹数据:', routeData);
-    
+    var routeData=data.route_data
+    routeData.data_id = data.data_id;
     // 创建数据卡片并添加到手持数据列表
     createAndAppendDataCard('handheld', 'route', routeData);
     
@@ -163,11 +174,12 @@ function onAddHandheldRouteData(routeData) {
 
 /**
  * 添加手持测向数据回调
- * @param {Object} dfData - 测向数据
+ * @param {Object} data - 测向数据
  */
-function onAddHandheldDFData(dfData) {
+function onAddHandheldDFData(data) {
     // console.log('收到手持测向数据:', dfData);
-    
+    var dfData=data.df_data
+    dfData.data_id = data.data_id;
     // 创建数据卡片并添加到手持数据列表
     createAndAppendDataCard('handheld', 'df', dfData);
     
@@ -177,11 +189,12 @@ function onAddHandheldDFData(dfData) {
 
 /**
  * 添加手持频谱参数数据回调
- * @param {Object} spectrumData - 频谱参数数据
+ * @param {Object} data - 频谱参数数据
  */
-function onAddHandheldSpectrumData(spectrumData) {
+function onAddHandheldSpectrumData(data) {
     // console.log('收到手持频谱参数数据:', spectrumData);
-    
+    var spectrumData=data.trace_param
+    spectrumData.data_id = data.data_id;
     // 创建数据卡片并添加到手持数据列表
     createAndAppendDataCard('handheld', 'spectrum', spectrumData);
     
@@ -191,11 +204,12 @@ function onAddHandheldSpectrumData(spectrumData) {
 
 /**
  * 添加北斗轨迹数据回调
- * @param {Object} routeData - 轨迹数据
+ * @param {Object} data - 轨迹数据
  */
-function onAddBDRouteData(routeData) {
+function onAddBDRouteData(data) {
     // console.log('收到北斗轨迹数据:', routeData);
-    
+    var routeData=data.route_data
+    routeData.data_id = data.data_id;
     // 创建数据卡片并添加到回传数据列表
     createAndAppendDataCard('backtransmission', 'route', routeData);
     
@@ -205,11 +219,12 @@ function onAddBDRouteData(routeData) {
 
 /**
  * 添加北斗测向数据回调
- * @param {Object} dfData - 测向数据
+ * @param {Object} data - 测向数据
  */
-function onAddBDDFData(dfData) {
+function onAddBDDFData(data) {
     // console.log('收到北斗测向数据:', dfData);
-    
+    var dfData=data.df_data
+    dfData.data_id = data.data_id;
     // 创建数据卡片并添加到回传数据列表
     createAndAppendDataCard('backtransmission', 'df', dfData);
     
@@ -219,11 +234,12 @@ function onAddBDDFData(dfData) {
 
 /**
  * 添加北斗频谱参数数据回调
- * @param {Object} spectrumData - 频谱参数数据
+ * @param {Object} data - 频谱参数数据
  */
-function onAddBDSpectrumData(spectrumData) {
+function onAddBDSpectrumData(data) {
     // console.log('收到北斗频谱参数数据:', spectrumData);
-    
+    var spectrumData=data.trace_param
+    spectrumData.data_id = data.data_id;
     // 创建数据卡片并添加到回传数据列表
     createAndAppendDataCard('backtransmission', 'spectrum', spectrumData);
     
@@ -263,18 +279,26 @@ function onClearDataList(clearDZList, clearBDList) {
 }
 
 function onSetStatus(data) {
-    data={
-        data_type: 201,
-        set_bd_client_id:"123456789",
-        set_data_send_interval:60000,
-        freq_diff:false,
-        measure_bw:true,
-        rbw:true,
-        fm_diff:false,
-        occupy:false,
+    if(data===true){
+        data={
+            data_type: 201,//数据消息类型
+            set_bd_client_id:"123456789",//北斗号
+            data_send_type:1,// 发送方式 0 自动 1 手动
+            set_data_send_interval:60000,// 数据发送间隔
+            freq_diff:false,//频差
+            measure_bw:true,// 带宽
+            measure_param_status:false,//测量开关
+            data_save_time:30,//保存时间
+            rbw:true,// 带宽
+            fm_diff:false,// 频差
+            occupy:false,// 占用
+        }
     }
+    
+    settingData = data;
     console.log('收到状态更新:', data);
-    window.updateSettingsDisplay(data.set_bd_client_id, data.set_data_send_interval, data.freq_diff, data.measure_bw, data.rbw, data.fm_diff, data.occupy);
+    window.updateSettingsDisplay(data.set_bd_client_id, data.set_data_send_interval,data.data_send_type, data.freq_diff, data.measure_bw, data.rbw, data.fm_diff, data.occupy, data.measure_param_status, data.data_save_time);
+    window.updateHandleSendDisplay()
 }
 
 /**
@@ -328,6 +352,18 @@ function setDataSendInterval(interval) {
     sendMessageToCpp(message);
 }
 
+/**
+ * 设置发送方式
+ * @param {number} mode - 发送方式（0: 自动 1: 手动）
+ */
+function setSendMethod(mode){
+    var message = {
+        data_type: 12,
+        data_send_type: mode-0
+    };
+    sendMessageToCpp(message);
+    getSettingStatus();
+}
 /**
  * 设置频差开关
  * @param {boolean} enabled - 是否启用
@@ -387,6 +423,43 @@ function setOccupySwitch(enabled) {
     };
     sendMessageToCpp(message);
 }
+/** 
+ * 设置测量开关
+ * @param {boolean} enabled - 是否启用
+*/
+function setMeasureSwitch(enabled){
+    var message = {
+        data_type: 13,
+        measure_param_status: enabled
+    };
+    sendMessageToCpp(message);
+}
+
+/**
+ * 设置数据保留天数
+ * @param {number} days - 保留天数
+ */
+function setDataSaveTime(days) {
+    var message = {
+        data_type: 14,
+        data_save_time: days
+    };
+    sendMessageToCpp(message);
+}
+
+/**
+ * 更新数据发送状态
+ * @param {number} dataId - 数据ID
+ * @param {boolean} status - 发送状态 (true: 已发送, false: 未发送)
+ */
+function updateDataSendStatus(dataId, status) {
+    var message = {
+        data_type: 15,
+        data_id: dataId,
+        send_status: status
+    };
+    sendMessageToCpp(message);
+}
 
 /**
  * 获取设置界面状态
@@ -398,25 +471,18 @@ function getSettingStatus() {
     sendMessageToCpp(message);
 }
 
-
-// 初始化通信模块
-function initCommunication() {
-    console.log('通信模块初始化');
-    // new QWebChannel(qt.webChannelTransport, function(channel) {
-    //     window.bridge = channel.objects.bridge;
-    //     bridge.recvDataFromWebFun('{"data_type":1}')
-    //     bridge.sendDataToWebSignal.connect(function (data) {
-    //         handleReceivedMessage(data)
-    //     })
-    // })
-    
-    // 检查是否在QML环境中，如果是则监听来自C++的消息
-    if (typeof window.bridge !== 'undefined' && qt.webChannelTransport) {
-        console.log('检测到QML环境，准备接收C++消息');
-    } else {
-        console.log('非QML环境，使用模拟模式');
+/**
+ * 发送手持数据
+ * @param {string} data - 数据
+ */
+function sendHandheldData(data) {
+    console.log('发送手持数据==========:', data);
+    for (var i = 0; i < data.length; i++) {
+        sendMessageToCpp(data[i]);
     }
 }
+
+
 /**
  * 模拟连接响应（仅用于开发环境）
  * @param {boolean} message - 数据
@@ -461,6 +527,24 @@ function simulateConnectionResponse(message) {
 }
 
 
+function deepClone(origin, target) {
+  var target = target || {};
+  var toStr = Object.prototype.toString;
+  var arrType = '[object Array]';
+  
+  for (var key in origin) {
+    if (origin.hasOwnProperty(key)) {
+      if (typeof origin[key] === 'object' && origin[key] !== null) {
+        target[key] = toStr.call(origin[key]) === arrType ? [] : {};
+        deepClone(origin[key], target[key]);
+      } else {
+        target[key] = origin[key];
+      }
+    }
+  }
+  return target;
+}
+
 // 页面加载完成后初始化通信模块
 // if (document.readyState === 'loading') {
 //     console.log('DOM 加载完成，准备初始化通信模块');
@@ -471,7 +555,24 @@ function simulateConnectionResponse(message) {
 // }
 
 
-
+// 初始化通信模块
+function initCommunication() {
+    console.log('通信模块初始化');
+    // new QWebChannel(qt.webChannelTransport, function(channel) {
+    //     window.bridge = channel.objects.bridge;
+    //     bridge.recvDataFromWebFun('{"data_type":1}')
+    //     bridge.sendDataToWebSignal.connect(function (data) {
+    //         handleReceivedMessage(data)
+    //     })
+    // })
+    
+    // 检查是否在QML环境中，如果是则监听来自C++的消息
+    if (typeof window.bridge !== 'undefined' && qt.webChannelTransport) {
+        console.log('检测到QML环境，准备接收C++消息');
+    } else {
+        console.log('非QML环境，使用模拟模式');
+    }
+}
 
 
 
@@ -488,6 +589,7 @@ function simulateConnectionResponse(message) {
 //测试
 setTimeout(addTestData, 1000);
 function testFun(){
+    onSetStatus(true)
     setTimeout(() => {
         // onClearDataList(false, true)
         // onSetStatus()
@@ -624,14 +726,20 @@ function generateRandomBDSpectrumData() {
 /**
  * 添加测试数据到系统
  */
+var dataids=0
 function addTestData() {
     console.log("开始添加测试数据...");
     var randomDataCount = 100;
 
     // 添加手持频谱参数数据 (100条)
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < 3; i++) {
         var spectrumData = generateRandomSpectrumData();
-        onAddHandheldSpectrumData(spectrumData);
+        var datas={
+            trace_param:spectrumData,
+            data_id:dataids
+        }
+        onAddHandheldSpectrumData(datas);
+        dataids++;
         // if (window.updateDataCount) {
         //     window.updateDataCount('handheld', 'spectrum');
         // }
@@ -640,19 +748,29 @@ function addTestData() {
     // 添加手持测向数据 (100条)
     for (var i = 0; i < 1; i++) {
         var dfData = generateRandomDFData();
-        onAddHandheldDFData(dfData);
+        var datas={
+            df_data:dfData,
+            data_id:dataids
+        }
+        onAddHandheldDFData(datas);
         // if (window.updateDataCount) {
         //     window.updateDataCount('handheld', 'df');
         // }
+        dataids++;
     }
 
     // 添加手持轨迹数据 (100条)
     for (var i = 0; i < 1; i++) {
         var routeData = generateRandomRouteData();
-        onAddHandheldRouteData(routeData);
+        var datas={
+            route_data:routeData,
+            data_id:dataids
+        }
+        onAddHandheldRouteData(datas);
         // if (window.updateDataCount) {
         //     window.updateDataCount('handheld', 'route');
         // }
+        dataids++;
     }
     
     
@@ -662,25 +780,39 @@ function addTestData() {
     // 添加北斗轨迹数据 (100条)
     for (var i = 0; i < randomDataCount; i++) {
         var bdRouteData = generateRandomBDRouteData();
-        onAddBDRouteData(bdRouteData);
+        var datas={
+            route_data:bdRouteData,
+            data_id:dataids
+        }
+        onAddBDRouteData(datas);
         // if (window.updateDataCount) {
         //     window.updateDataCount('backtransmission', 'route');
         // }
+        dataids++;
     }
     
     // 添加北斗测向数据 (100条)
     for (var i = 0; i < randomDataCount; i++) {
         var bdDFData = generateRandomBDDFData();
-        onAddBDDFData(bdDFData);
+        var datas={
+            df_data:bdDFData,
+            data_id:dataids
+        }
+        onAddBDDFData(datas);
         // if (window.updateDataCount) {
         //     window.updateDataCount('backtransmission', 'df');
         // }
+        dataids++;
     }
     
     // 添加北斗频谱参数数据 (100条)
     for (var i = 0; i < randomDataCount; i++) {
         var bdSpectrumData = generateRandomBDSpectrumData();
-        onAddBDSpectrumData(bdSpectrumData);
+        var datas={
+            trace_param:bdSpectrumData,
+            data_id:dataids
+        }
+        onAddBDSpectrumData(datas);
         // if (window.updateDataCount) {
         //     window.updateDataCount('backtransmission', 'spectrum');
         // }
